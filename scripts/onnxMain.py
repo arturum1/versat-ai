@@ -385,10 +385,11 @@ def RestrictModelFreeParameter(cModel, paramValue):
                     inputs[i] = mapped.get(name, paramValue)
                     mapped[name] = inputs[i]
 
-        for i, name in enumerate(op.outputDimensions):
-            if type(name) == str:
-                op.outputDimensions[i] = mapped.get(name, paramValue)
-                mapped[name] = op.outputDimensions[i]
+        for outDim in op.outputDimensions:
+            for i, name in enumerate(outDim):
+                if type(name) == str:
+                    outDim[i] = mapped.get(name, paramValue)
+                    mapped[name] = outDim[i]
 
     return cModel
 
