@@ -5,8 +5,6 @@
 # This makefile is used at build-time in $(BUILD_DIR)/software/Makefile
 include ../config_build.mk
 
--include VerilatorMake.mk
-
 #########################################
 #            General settings           #
 #########################################
@@ -39,7 +37,7 @@ endif
 
 #default compiler settings
 TOOLCHAIN_PREFIX ?=riscv64-unknown-elf-
-CFLAGS ?=-O2 -nostdlib -march=$(MFLAGS) -mabi=ilp32 --specs=nano.specs -Wcast-align=strict $(USER_CFLAGS)
+CFLAGS ?=-Os -nostdlib -march=$(MFLAGS) -mabi=ilp32 --specs=nano.specs -Wcast-align=strict $(USER_CFLAGS)
 LFLAGS ?= -Wl,-L,src,-Bstatic,-T,$(TEMPLATE_LDS),--strip-debug
 LLIBS ?=-lgcc -lc -lnosys
 INCLUDES ?=-I. -Isrc
@@ -49,9 +47,9 @@ INCLUDES ?=-I. -Isrc
 #########################################
 
 # compiler flags
-EMUL_CFLAGS ?=-std=gnu99 -O0 -g -DPC=1 #-fsanitize=address -static-libasan
+EMUL_CFLAGS ?=-Os -std=gnu99 -Wl,--strip-debug
 
-CONSOLE_CMD :=rm -f soc2cnsl cnsl2soc; ../scripts/console.py -L
+CONSOLE_CMD ?=rm -f soc2cnsl cnsl2soc; ../scripts/console.py -L
 
 EMUL_INCLUDES ?=-I. -Isrc
 
@@ -61,12 +59,9 @@ EMUL_INCLUDES ?=-I. -Isrc
 
 build: $(UTARGETS)
 %.elf: $(TEMPLATE_LDS) $(HDR) $(SRC) $(EXTRA_SRC)
-	$(TOOLCHAIN_PREFIX)gcc -o $@ $(CFLAGS) -fPIC $(LFLAGS) $(INCLUDES) $(SRC) $(EXTRA_SRC) $(LLIBS)
+	$(TOOLCHAIN_PREFIX)gcc -o $@ $(CFLAGS) $(LFLAGS) $(INCLUDES) $(SRC) $(EXTRA_SRC) $(LLIBS)
+	$(TOOLCHAIN_PREFIX)objdump -d $@ > $(*F).asm
 	$(TOOLCHAIN_PREFIX)objcopy -O binary $@ $(*F).bin
-
-versat_ai_boot.elf: $(TEMPLATE_LDS) $(HDR) $(SRC) $(EXTRA_SRC)
-	$(TOOLCHAIN_PREFIX)gcc -o $@ $(CFLAGS) -fPIC $(LFLAGS) $(INCLUDES) $(SRC) $(EXTRA_SRC) $(LLIBS)
-	$(TOOLCHAIN_PREFIX)objcopy -O binary $@ versat_ai_boot.bin
 
 ifneq ($(BOARD),)
 FPGA_TOOL:=$(shell find ../hardware/fpga -name $(BOARD) | cut -d"/" -f5)
@@ -84,14 +79,14 @@ debug:
 #         PC emulation targets          #
 #########################################
 
-fw_emul: $(EMUL_HDR) $(EMUL_SRC) libaccel.a
-	gcc -o $@ $(EMUL_CFLAGS) $(EMUL_INCLUDES) $(EMUL_SRC) libaccel.a -lm -lstdc++
+fw_emul: $(EMUL_HDR) $(EMUL_SRC)
+	gcc -o $@ $(EMUL_CFLAGS) $(EMUL_INCLUDES) $(EMUL_SRC) -lgcc -lc
 
 build_emul: fw_emul
 	@echo "build"
 
 #board client command
-BOARD_GRAB_CMD ?=../scripts/board_client.py grab 3000
+BOARD_GRAB_CMD ?=../scripts/board_client.py grab 300
 
 test.log: build_emul
 	$(BOARD_GRAB_CMD) -s './fw_emul' -c '$(CONSOLE_CMD)'

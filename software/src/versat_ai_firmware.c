@@ -166,6 +166,12 @@ int main() {
   // test puts
   uart_puts("\n\n\nHello world from versat_ai!\n\n\n");
 
+#if USE_TESTER
+  uart_finish();
+
+  return 0;
+#endif
+
 #ifdef TEST_NAME
   printf("\n\nRunning test %s\n\n", TEST_NAME);
 #endif
@@ -209,6 +215,14 @@ int main() {
   printf("\n\n[WARNING] Running without computing or embedding tables. Any "
          "operator that uses any transcendental functions should fail.\n\n");
 #endif
+
+  void *ptr = malloc(16 * 1024 * 1024);
+
+  printf("%p\n", ptr);
+
+  // void* ptr2 = malloc(256 * 1024 * 1024);
+
+  // printf("%p\n",ptr2);
 
   // We allocate a little bit more just in case.
   // Also need to allocate a bit more to ensure that Align4 works fine.

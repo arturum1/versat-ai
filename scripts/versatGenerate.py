@@ -14,6 +14,7 @@ def RunVersat(versat_spec, versat_top, versat_extra, build_dir, axi_data_w, debu
         f"-b{axi_data_w}",
         "-p",
         "iob_csrs_",
+        "-E",
         "-t",
         versat_top,
         "-u",
@@ -119,11 +120,8 @@ if __name__ == "__main__":
                     "name": "csr_interface",
                     "descr": "",
                     "signals": [
-                        {"name": "interface_w_en_i", "width": 1},
-                        {"name": "interface_w_strb_i", "width": 1},
-                        {"name": "interface_w_addr_i", "width": 1},
-                        {"name": "interface_w_data_i", "width": 1},
-                        {"name": "interface_w_ready_o", "width": 1},
+                        {"name": "csr_interface_raddr_o", "width": 20},
+                        {"name": "csr_interface_i", "width": 1},
                     ],
                 }
             ],
@@ -136,7 +134,7 @@ if __name__ == "__main__":
                     "csrs": [
                         {
                             "name": "csr_interface",
-                            "mode": "R",
+                            "type": "R",
                             "n_bits": 32,
                             "rst_val": 0,
                             "log2n_items": 20,
@@ -145,7 +143,7 @@ if __name__ == "__main__":
                     ],
                     "connect": {
                         "clk_en_rst_s": "clk_en_rst_s",
-                        "csr_interface_write_io": "interface",
+                        "csr_interface_io": "csr_interface",
                     },
                 }
             ],

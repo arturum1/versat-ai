@@ -8,10 +8,12 @@
 //  Global configurations
 //
 
+#define USE_TESTER 1
+
 #define EMBED_TABLES 1
 #define COMPUTE_TABLES 0
 
-#define USE_ETHERNET 1
+#define USE_ETHERNET 0
 #define DEBUG 1
 
 #define USE_CORDIC 1
