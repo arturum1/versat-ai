@@ -178,7 +178,7 @@ def setup(py_params_dict):
         },
     ]
 
-    if False:
+    if True:
         subblocks += [
             {
                 "core_name": "iob_axi_full_xbar",
@@ -226,7 +226,7 @@ def setup(py_params_dict):
                         ],
                     ),
                 },
-                "addr_w": 32,
+                "addr_w": 30,
                 "data_w": 32,
                 "lock_w": 1,
                 "num_managers": 4,
