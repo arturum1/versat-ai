@@ -26,7 +26,7 @@ def setup(py_params_dict):
         # Memory address width
         "mem_addr_w": 20,
         # Bootrom address width
-        "bootrom_addr_w": 18,
+        "bootrom_addr_w": 12,
         # Firmware base address
         "fw_baseaddr": 0x00000000,
         # Firmware address width
@@ -68,6 +68,20 @@ def setup(py_params_dict):
     data_w = 32
 
     ports = []
+
+    if True:
+        ports += [
+            {
+                "name": "versat_rom_m",
+                "signals": {
+                    "type": "rom_sp",
+                    "prefix": "versat_rom_",
+                    "ADDR_W": params["bootrom_addr_w"] - 2,
+                    "DATA_W": params["data_w"],
+                },
+            },
+        ]
+
     if False:
         ports += [
             # {
@@ -146,7 +160,7 @@ def setup(py_params_dict):
                 # Cbus (if any) is connected automatically
                 "rs232_m": "sut_rs232",
                 "axi_m": "versat_ai",
-                # "rom_bus_m": "versat_rom_m",
+                "rom_bus_m": "versat_rom_m",
             },
         },
         {
@@ -163,6 +177,62 @@ def setup(py_params_dict):
             },
         },
     ]
+
+    if False:
+        subblocks += [
+            {
+                "core_name": "iob_axi_full_xbar",
+                "name": "iob_soc_tester_axi_full_xbar",
+                "instance_name": "iob_axi_full_xbar",
+                "instance_description": "AXI full xbar instance",
+                "parameters": {
+                    "ID_W": "AXI_ID_W",
+                    "LEN_W": "AXI_LEN_W",
+                },
+                "connect": {
+                    "clk_en_rst_s": "clk_en_rst_s",
+                    "rst_i": "rst",
+                    "s0_axi_s": "cpu_ibus",
+                    "s1_axi_s": "cpu_dbus",
+                    "s2_axi_s": "versat_ai",
+                    "m0_axi_m": (
+                        "int_mem_axi",
+                        [
+                            "{unused_m0_araddr_bits, int_mem_axi_araddr}",
+                            "{unused_m0_awaddr_bits, int_mem_axi_awaddr}",
+                        ],
+                    ),
+                    "m1_axi_m": (
+                        "axi_m",
+                        [
+                            "{unused_m1_araddr_bits, axi_araddr_o}",
+                            "{unused_m1_awaddr_bits, axi_awaddr_o}",
+                        ],
+                    ),
+                    "m2_axi_m": (
+                        "bootrom_cbus",
+                        [
+                            "{unused_m2_araddr_bits, bootrom_axi_araddr}",
+                            "{unused_m2_awaddr_bits, bootrom_axi_awaddr}",
+                        ],
+                    ),
+                    "m3_axi_m": (
+                        "axi_periphs_cbus",
+                        [
+                            "{unused_m3_araddr_bits, periphs_axi_araddr}",
+                            "{unused_m3_awaddr_bits, periphs_axi_awaddr}",
+                            "periphs_axi_awlock[0]",
+                            "periphs_axi_arlock[0]",
+                        ],
+                    ),
+                },
+                "addr_w": 32,
+                "data_w": 32,
+                "lock_w": 1,
+                "num_managers": 4,
+                "num_subordinates": 3,
+            },
+        ]
 
     if False and params["use_intmem"]:
         subblocks += [
@@ -231,7 +301,7 @@ def setup(py_params_dict):
                 "board_list": ["iob_aes_ku040_db_g", "iob_cyclonev_gt_dk"],
                 "wires": wires,
                 "subblocks": subblocks,
-                # "ports": ports,
+                "ports": ports,
             },
         },
     }

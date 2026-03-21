@@ -19,6 +19,10 @@
 
 #include "versat_ai.h"
 
+// HACK
+#define IOB_BSP_FREQ 1000000
+#define IOB_BSP_BAUD 1000000
+
 // Contains info for each test.
 #include "testInfo.h"
 
@@ -152,6 +156,20 @@ void PrintU64InHex(uint64_t n) {
   printf("%08x%08x\n", conv.u32[1], conv.u32[0]);
 }
 
+#if USE_TESTER
+int main() {
+  // init timer
+  timer_init(TIMER0_BASE);
+
+  // init uart
+  uart_init(UART0_BASE, IOB_BSP_FREQ / IOB_BSP_BAUD);
+  printf_init(&uart_putc);
+
+  uart_finish();
+
+  return 0;
+}
+#else
 int main() {
   char pass_string[] = "Test passed!";
   char fail_string[] = "Test failed!";
@@ -305,3 +323,4 @@ int main() {
 
   return 0;
 }
+#endif

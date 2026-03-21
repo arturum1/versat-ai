@@ -25,7 +25,7 @@ def setup(py_params_dict: dict):
         # If should use external memory (usually DDR)
         "use_extmem": True,
         # If should include a bootrom
-        "use_bootrom": False,
+        "use_bootrom": True,
         # If should include peripherals
         "use_peripherals": True,
         # If should setup ethernet ports and testbenches
@@ -37,7 +37,7 @@ def setup(py_params_dict: dict):
         # Memory address width
         "mem_addr_w": 20,
         # Bootrom address width
-        "bootrom_addr_w": 18,
+        "bootrom_addr_w": 12,
         # Firmware base address
         "fw_baseaddr": 0x00000000,
         # Firmware address width
@@ -60,12 +60,13 @@ def setup(py_params_dict: dict):
             srcPath = os.path.join(src, folderName)
             dstPath = os.path.join(dst, folderName)
 
-            print(os.getcwd(), srcPath, dstPath)
+            print(os.getcwd(), "Copied:", srcPath, dstPath)
 
             shutil.copytree(srcPath, dstPath, dirs_exist_ok=True)
 
         Copy("hardware/src")
-        # Copy("software")
+        Copy("software")
+        Copy("software/src")
 
     num_xbar_managers = 0
     for param_name in ["use_intmem", "use_extmem", "use_bootrom", "use_peripherals"]:

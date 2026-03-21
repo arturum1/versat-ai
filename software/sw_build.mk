@@ -29,7 +29,7 @@ versat_ai_firmware.bin: ../../software/versat_ai_firmware.bin
 	cp $< $@
 
 ../../software/%.bin:
-	make -C ../../ fw-build
+	make -C ../../ sw-build
 
 UTARGETS+=build_versat_ai_software tb
 CSRS=./src/iob_uart_csrs.c
@@ -65,7 +65,7 @@ build_versat_ai_software: versat_ai_firmware versat_ai_boot versat_ai_preboot
 ifneq ($(USE_FPGA),)
 WRAPPER_CONFS_PREFIX=versat_ai_$(BOARD)
 else
-WRAPPER_CONFS_PREFIX=iob_uut
+WRAPPER_CONFS_PREFIX=versat_ai
 endif
 
 iob_bsp:
