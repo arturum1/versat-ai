@@ -12,8 +12,8 @@
 #define PROGNAME "IOb-Bootloader"
 
 // HACK
-#define IOB_BSP_FREQ 1000000
-#define IOB_BSP_BAUD 1000000
+#define IOB_BSP_BAUD 3000000
+#define IOB_BSP_FREQ 100000000
 
 int main() {
 

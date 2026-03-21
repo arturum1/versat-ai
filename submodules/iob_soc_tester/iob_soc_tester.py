@@ -139,6 +139,19 @@ def setup(py_params_dict):
                     "LOCK_W": "1",
                 },
             },
+            {
+                "name": "translated_versat_ai",
+                "descr": "Translated Versat ai wires (SUT sees upper part of memory only)",
+                "signals": {
+                    "type": "axi",
+                    "prefix": "translated_versat_",
+                    "ID_W": "AXI_ID_W",
+                    "ADDR_W": addr_w,
+                    "DATA_W": data_w,
+                    "LEN_W": "AXI_LEN_W",
+                    "LOCK_W": "1",
+                },
+            },
         ]
 
     subblocks = []
@@ -161,6 +174,7 @@ def setup(py_params_dict):
                 "rs232_m": "sut_rs232",
                 "axi_m": "versat_ai",
                 "rom_bus_m": "versat_rom_m",
+                # "versat_mem_bus_m": "versat_mem_bus_m"
             },
         },
         {
@@ -194,7 +208,7 @@ def setup(py_params_dict):
                     "rst_i": "rst",
                     "s0_axi_s": "cpu_ibus",
                     "s1_axi_s": "cpu_dbus",
-                    "s2_axi_s": "versat_ai",
+                    "s2_axi_s": "translated_versat_ai",
                     "m0_axi_m": (
                         "int_mem_axi",
                         [
@@ -232,9 +246,35 @@ def setup(py_params_dict):
                 "num_managers": 4,
                 "num_subordinates": 3,
             },
+            {
+                "core_name": "iob_address_translator",
+                "instance_name": "address_translator",
+                "instance_description": "Translate addresses to access memory zones",
+                "parameters": {
+                    "ID_W": "AXI_ID_W",
+                    "ADDR_W": params["addr_w"] - 2,
+                    "DATA_W": params["data_w"],
+                    "LEN_W": "AXI_LEN_W",
+                    "LOCK_W": "1",
+                },
+                "connect": {
+                    "subordinate_s": (
+                        "versat_ai",
+                        [
+                            "{6'b0, sut_axi_araddr}",
+                            "{6'b0, sut_axi_awaddr}",
+                        ],
+                    ),
+                    "manager_m": "translated_versat_ai",
+                },
+                "memory_zones": [
+                    # (Start addr, End addr, Translation offset)
+                    (0x00000000, 0x0FFFFFFF, 0x10000000),
+                ],
+            },
         ]
 
-    if False and params["use_intmem"]:
+    if params["use_intmem"]:
         subblocks += [
             {
                 "core_name": "iob_axi_ram",
@@ -262,30 +302,16 @@ def setup(py_params_dict):
                 },
             },
         ]
-
-    if False and params["use_bootrom"]:
-        subblocks += [
+        ports += [
             {
-                "core_name": "iob_bootrom",
-                "instance_name": "bootrom",
-                "instance_description": "Boot ROM peripheral",
-                "parameters": {
-                    "AXI_ID_W": "AXI_ID_W",
-                    "AXI_LEN_W": "AXI_LEN_W",
+                "name": "external_mem_bus_m",
+                "descr": "Port for connection to external 'iob_ram_t2p_be' memory",
+                "signals": {
+                    "type": "ram_t2p_be",
+                    "prefix": "ext_mem_",
+                    "ADDR_W": params["mem_addr_w"] - 2,
+                    "DATA_W": params["data_w"],
                 },
-                "connect": {
-                    "clk_en_rst_s": "clk_en_rst_s",
-                    "iob_csrs_cbus_s": (
-                        "bootrom_cbus",
-                        [
-                            "{1'b0, bootrom_axi_arlock}",
-                            "{1'b0, bootrom_axi_awlock}",
-                        ],
-                    ),
-                    "ext_rom_bus_m": "rom_bus_m",
-                },
-                "bootrom_addr_w": params["bootrom_addr_w"],
-                "soc_name": params["name"],
             },
         ]
 

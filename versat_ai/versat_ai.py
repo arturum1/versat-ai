@@ -42,6 +42,8 @@ def setup(py_params_dict: dict):
         "fw_baseaddr": 0x00000000,
         # Firmware address width
         "fw_addr_w": 20,
+        # Internal memory address width
+        "intmem_addr_w": 20,
         # If should include a tester system
         "include_tester": False,
         # If should include default system snippet
@@ -258,6 +260,47 @@ def setup(py_params_dict: dict):
             "dest_dir": "hardware/simulation/src",
         },
     ]
+
+    if params["use_intmem"]:
+        subblocks += [
+            {
+                "core_name": "iob_axi_ram",
+                "instance_name": "internal_memory",
+                "instance_description": "Internal memory",
+                "parameters": {
+                    "ID_WIDTH": "AXI_ID_W",
+                    "LEN_WIDTH": "AXI_LEN_W",
+                    "ADDR_WIDTH": params["intmem_addr_w"],
+                    "DATA_WIDTH": "AXI_DATA_W",
+                },
+                "connect": {
+                    "clk_i": "clk",
+                    "rst_i": "rst",
+                    "axi_s": (
+                        "int_mem_axi",
+                        [
+                            "{int_mem_axi_araddr, 2'b0}",
+                            "{int_mem_axi_awaddr, 2'b0}",
+                            "{1'b0, int_mem_axi_arlock}",
+                            "{1'b0, int_mem_axi_awlock}",
+                        ],
+                    ),
+                    "external_mem_bus_m": "versat_mem_bus_m",
+                },
+            },
+        ]
+        ports += [
+            {
+                "name": "versat_mem_bus_m",
+                "descr": "Port for connection to external 'iob_ram_t2p_be' memory",
+                "signals": {
+                    "type": "ram_t2p_be",
+                    "prefix": "ext_mem_",
+                    "ADDR_W": params["mem_addr_w"] - 2,
+                    "DATA_W": params["data_w"],
+                },
+            },
+        ]
 
     # Py2hwsw dictionary describing current core
     core_dict = {
