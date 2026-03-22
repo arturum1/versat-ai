@@ -178,8 +178,21 @@ def setup(py_params_dict):
             },
         },
         {
+            "core_name": "versat_ai_uart",
+            "instance_name": "UART0",
+            "instance_description": "UART peripheral. This peripheral sends information about the current status of the system under test.",
+            "is_peripheral": True,
+            "parameters": {},
+            "connect": {
+                "clk_en_rst_s": "clk_en_rst_s",
+                # Cbus connected automatically
+                "rs232_m": "rs232_m",
+                # "interrupt_o": "uart0_interrupt",
+            },
+        },
+        {
             # Instantiate a UART core to communicate with SUT
-            "core_name": "iob_uart",
+            "core_name": "versat_ai_uart",
             "instance_name": "UART1",
             "instance_description": "UART peripheral for communication with SUT.",
             "is_peripheral": True,

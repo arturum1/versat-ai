@@ -21,7 +21,7 @@ def setup(py_params_dict: dict):
         # If should initialize memories from data in .hex files
         "init_mem": True,
         # If should include an internal memory
-        "use_intmem": False,
+        "use_intmem": True,
         # If should use external memory (usually DDR)
         "use_extmem": True,
         # If should include a bootrom
@@ -54,6 +54,7 @@ def setup(py_params_dict: dict):
     }
 
     if True:
+
         def Copy(folderName):
             src = "."
             dst = f"../versat_ai_V0.8"
