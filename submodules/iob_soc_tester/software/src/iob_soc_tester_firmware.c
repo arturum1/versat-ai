@@ -7,7 +7,7 @@
 #include <string.h>
 
 // Enable debug messages.
-#define DEBUG 0
+#define DEBUG 1
 
 int main() {
   int i;
@@ -43,6 +43,8 @@ int main() {
       iob_uart_csrs_init_baseaddr(UART1_BASE);
     };
 
+  // Step 1
+
   // Send ack to sut
   uart_puts("\nTester ACK");
 
@@ -61,6 +63,8 @@ int main() {
     asm volatile("nop");
   // Send second ack to SUT to continue boot
   uart_putc(ACK);
+
+  // Step 2
 
   i = 0;
   // Read and store messages sent from SUT

@@ -54,7 +54,6 @@ def setup(py_params_dict: dict):
     }
 
     if True:
-
         def Copy(folderName):
             src = "."
             dst = f"../versat_ai_V0.8"

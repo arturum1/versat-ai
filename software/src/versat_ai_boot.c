@@ -43,6 +43,8 @@ int main() {
     uart_puts(": Waiting for Console ACK.\n");
   }
 
+  // Step 2
+
 #ifndef VERSAT_AI_INIT_MEM
   // receive firmware from host
   int file_size = 0;
