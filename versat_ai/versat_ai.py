@@ -21,7 +21,7 @@ def setup(py_params_dict: dict):
         # If should initialize memories from data in .hex files
         "init_mem": True,
         # If should include an internal memory
-        "use_intmem": True,
+        "use_intmem": False,
         # If should use external memory (usually DDR)
         "use_extmem": True,
         # If should include a bootrom
