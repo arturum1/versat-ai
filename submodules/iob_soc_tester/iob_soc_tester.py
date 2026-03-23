@@ -23,8 +23,6 @@ def setup(py_params_dict):
         "use_peripherals": True,
         # If should setup ethernet ports and testbenches
         "use_ethernet": False,
-        # If should setup ila
-        "use_ila": int(py_params_dict.get("use_ila", False)),
         # CPU address width
         "addr_w": 32,
         # CPU data width
@@ -45,8 +43,6 @@ def setup(py_params_dict):
         "include_snippet": False,
         # CPU selection
         "cpu": "iob_vexriscv",
-        # If should use stream configuration
-        "stream": int(py_params_dict.get("stream_config", False)),
     }
 
     # Don't copy files for other targets (like clean)
@@ -89,51 +85,7 @@ def setup(py_params_dict):
             "min": "0",
             "max": "1",
         },
-        {
-            "name": "ILA",
-            "descr": "Enable support for ila at the cost of a larger firmware size.",
-            "type": "M",
-            "val": params["use_ila"],
-            "min": "0",
-            "max": "1",
-        },
-        {
-            "name": "STREAM",
-            "descr": "Use stream configuration.",
-            "type": "M",
-            "val": params["stream"],
-            "min": "0",
-            "max": "1",
-        },
     ]
-
-    if params["use_ila"]:
-        confs += [
-            {
-                "name": "ILA0_BUFFER_W",
-                "type": "D",
-                "val": "13",
-                "min": "NA",
-                "max": "NA",
-                "descr": "Size of the buffer to store samples.",
-            },
-            {
-                "name": "ILA0_SIGNAL_W",
-                "type": "D",
-                "val": "102",
-                "min": "1",
-                "max": "9999",
-                "descr": "Width of the sampler signal input.",
-            },
-            {
-                "name": "ILA0_TRIGGER_W",
-                "type": "D",
-                "val": "5",
-                "min": "1",
-                "max": "32",
-                "descr": "Width of the trigger input.",
-            },
-        ]
 
     ### Ports ###
     ports = []
@@ -391,313 +343,6 @@ def setup(py_params_dict):
             },
         ]
 
-    if params["use_ila"]:
-        wires += [
-            {
-                "name": "reset_combo",
-                "descr": "",
-                "signals": [
-                    {"name": "reset_combo", "width": 1},
-                ],
-            },
-            {
-                "name": "clk_en_reset",
-                "descr": "",
-                "signals": [
-                    {"name": "clk_i"},
-                    {"name": "cke_i"},
-                    {"name": "reset_combo"},
-                ],
-            },
-            {
-                "name": "reset",
-                "descr": "",
-                "signals": [
-                    {"name": "reset", "width": 1},
-                ],
-            },
-            {
-                "name": "watchdog0_active",
-                "descr": "",
-                "signals": [
-                    {"name": "watchdog0_active", "width": 1},
-                ],
-            },
-            {
-                "name": "ILA0_ila",
-                "descr": "",
-                "signals": [
-                    {
-                        "name": "ILA0_signal",
-                        "width": "ILA0_SIGNAL_W",
-                    },
-                    {
-                        "name": "ILA0_trigger",
-                        "width": "ILA0_TRIGGER_W",
-                    },
-                    {
-                        "name": "ILA0_sampling_clk",
-                        "width": 1,
-                    },
-                ],
-            },
-            {
-                "name": "ILA0_dma",
-                "descr": "",
-                "signals": [
-                    {
-                        "name": "ila_tdata_o",
-                        "width": 32,
-                    },
-                    {
-                        "name": "ila_tvalid_o",
-                        "width": 1,
-                    },
-                    {
-                        "name": "ila_tready_i",
-                        "width": 1,
-                    },
-                ],
-            },
-        ]
-
-    if params["stream"]:
-        wires += [
-            {
-                "name": "axistreamin_interrupt",
-                "descr": "",
-                "signals": [
-                    {"name": "axistreamin_interrupt", "width": 1},
-                ],
-            },
-            {
-                "name": "overflow",
-                "descr": "",
-                "signals": [
-                    {"name": "overflow", "width": 1},
-                ],
-            },
-            {
-                "name": "axistreamout_interrupt",
-                "descr": "",
-                "signals": [
-                    {"name": "axistreamout_interrupt", "width": 1},
-                ],
-            },
-            {
-                "name": "underflow",
-                "descr": "",
-                "signals": [
-                    {"name": "underflow", "width": 1},
-                ],
-            },
-            {
-                "name": "axistream_in",
-                "descr": "",
-                "signals": [
-                    {
-                        "name": "axis_in_clk_i",
-                        "width": "1",
-                        "descr": "Clock.",
-                    },
-                    {
-                        "name": "axis_in_cke_i",
-                        "width": "1",
-                        "descr": "Clock enable",
-                    },
-                    {
-                        "name": "axis_in_arst_i",
-                        "width": "1",
-                        "descr": "Asynchronous and active high reset.",
-                    },
-                    {
-                        "name": "axis_in_tdata_i",
-                        "width": "32",
-                        "descr": "Data.",
-                    },
-                    {
-                        "name": "axis_in_tvalid_i",
-                        "width": "1",
-                        "descr": "Valid.",
-                    },
-                    {
-                        "name": "axis_in_tready_o",
-                        "width": "1",
-                        "descr": "Ready.",
-                    },
-                    {
-                        "name": "axis_in_tlast_i",
-                        "width": "1",
-                        "descr": "Last word.",
-                    },
-                ],
-            },
-            {
-                "name": "axistream_out",
-                "descr": "",
-                "signals": [
-                    {
-                        "name": "axis_out_clk_i",
-                        "width": "1",
-                        "descr": "Clock.",
-                    },
-                    {
-                        "name": "axis_out_cke_i",
-                        "width": "1",
-                        "descr": "Clock enable.",
-                    },
-                    {
-                        "name": "axis_out_arst_i",
-                        "width": "1",
-                        "descr": "Aynchronous and active high reset.",
-                    },
-                    {
-                        "name": "axis_out_tdata_o",
-                        "width": "32",
-                        "descr": "Data.",
-                    },
-                    {
-                        "name": "axis_out_tvalid_o",
-                        "width": "1",
-                        "descr": "Valid.",
-                    },
-                    {
-                        "name": "axis_out_tready_i",
-                        "width": "1",
-                        "descr": "Ready.",
-                    },
-                    {
-                        "name": "axis_out_tlast_o",
-                        "width": "1",
-                        "descr": "Last word.",
-                    },
-                ],
-            },
-            {
-                "name": "decoder_interrupt",
-                "descr": "",
-                "signals": [
-                    {"name": "decoder_interrupt", "width": "1"},
-                ],
-            },
-            {
-                "name": "axis_clk_en_rst",
-                "descr": "",
-                "signals": [
-                    {"name": "axis_out_clk_i"},
-                    {"name": "axis_out_arst_i"},
-                    {"name": "axis_out_cke_i"},
-                ],
-            },
-            {
-                "name": "axis_out_tready_i",
-                "descr": "",
-                "signals": [
-                    {"name": "axis_out_tready_i"},
-                ],
-            },
-            {
-                "name": "sys_axis_in",
-                "descr": "",
-                "signals": [
-                    {
-                        "name": "sys_axis_in_tdata",
-                        "width": 32,
-                    },
-                    {
-                        "name": "sys_axis_in_tvalid",
-                        "width": 1,
-                    },
-                    {
-                        "name": "sys_axis_in_tready",
-                        "width": 1,
-                    },
-                ],
-            },
-            {
-                "name": "sys_axis_out",
-                "descr": "",
-                "signals": [
-                    {
-                        "name": "sys_axis_out_tdata",
-                        "width": 32,
-                    },
-                    {
-                        "name": "sys_axis_out_tvalid",
-                        "width": 1,
-                    },
-                    {
-                        "name": "sys_axis_out_tready",
-                        "width": 1,
-                    },
-                ],
-            },
-            {
-                "name": "dma_axi",
-                "descr": "",
-                "signals": {
-                    "prefix": "dma_",
-                    "type": "axi",
-                    "ID_W": "AXI_ID_W",
-                },
-            },
-            {
-                "name": "nc0_clk_gen",
-                "descr": "",
-                "signals": [
-                    {
-                        "name": "mclk_i",
-                    },
-                    {
-                        "name": "arst_i",
-                    },
-                    {
-                        "name": "cke_i",
-                    },
-                    {
-                        "name": "nco0_clk_out",
-                        "width": "1",
-                    },
-                ],
-            },
-            {
-                "name": "nco0_clk_out",
-                "descr": "",
-                "signals": [
-                    {"name": "nco0_clk_out"},
-                ],
-            },
-            {
-                "name": "mcke",
-                "descr": "",
-                "signals": [
-                    {"name": "mcke", "width": 1},
-                ],
-            },
-            {
-                "name": "pulse",
-                "descr": "",
-                "signals": [
-                    {"name": "pulse", "width": 1},
-                ],
-            },
-            {
-                "name": "edge_detect_clk_en_rst",
-                "descr": "",
-                "signals": [
-                    {
-                        "name": "mclk_i",
-                    },
-                    {
-                        "name": "cke_i",
-                    },
-                    {
-                        "name": "arst_mclk_i",
-                    },
-                ],
-            },
-        ]
-
     ### Subblocks ###
     subblocks = []
 
@@ -745,11 +390,8 @@ def setup(py_params_dict):
             "init_mem": params["init_mem"],
             "use_extmem": params["use_extmem"],
             "use_ethernet": params["use_ethernet"],
-            "stream_config": params["stream"],
             "connect": {
-                "clk_en_rst_s": (
-                    "clk_en_reset" if params["use_ila"] else "clk_en_rst_s"
-                ),
+                "clk_en_rst_s": "clk_en_rst_s",
                 "rs232_m": "rs232",
             },
         },
@@ -759,15 +401,6 @@ def setup(py_params_dict):
         subblocks[-1]["connect"].update(
             {
                 "axi_m": "sut_axi",
-            }
-        )
-
-    if params["stream"]:
-        subblocks[-1]["connect"].update(
-            {
-                "axistream_in_io": "axistream_out",
-                "axistream_out_io": "axistream_in",
-                "interrupt_o": "decoder_interrupt",
             }
         )
 
@@ -783,9 +416,7 @@ def setup(py_params_dict):
                 "LEN_W": "AXI_LEN_W",
             },
             "connect": {
-                "clk_en_rst_s": (
-                    "clk_en_reset" if params["use_ila"] else "clk_en_rst_s"
-                ),
+                "clk_en_rst_s": "clk_en_rst_s",
                 "rst_i": "rst",
                 "s0_axi_s": "cpu_ibus",
                 "s1_axi_s": "cpu_dbus",
@@ -857,22 +488,6 @@ def setup(py_params_dict):
         )
         num_subordinates += 1
 
-    if params["stream"]:
-        subblocks[-1]["connect"].update(
-            {
-                f"s{num_subordinates}_axi_s": (
-                    "dma_axi",
-                    [
-                        f"dma_axi_araddr[{params['addr_w']-1}:2]",
-                        "dma_axi_arlock[0]",
-                        f"dma_axi_awaddr[{params['addr_w']-1}:2]",
-                        "dma_axi_awlock[0]",
-                    ],
-                ),
-            }
-        )
-        num_subordinates += 1
-
     # Set number of subordinate interfaces
     subblocks[-1]["num_subordinates"] = num_subordinates
 
@@ -890,9 +505,7 @@ def setup(py_params_dict):
             },
             "connect": {
                 "resetVector_i": "reset_addr",
-                "clk_en_rst_s": (
-                    "clk_en_reset" if params["use_ila"] else "clk_en_rst_s"
-                ),
+                "clk_en_rst_s": "clk_en_rst_s",
                 "rst_i": "rst",
                 "i_bus_m": (
                     "cpu_ibus",
@@ -930,9 +543,7 @@ def setup(py_params_dict):
             "is_peripheral": True,
             "parameters": {},
             "connect": {
-                "clk_en_rst_s": (
-                    "clk_en_reset" if params["use_ila"] else "clk_en_rst_s"
-                ),
+                "clk_en_rst_s": "clk_en_rst_s",
                 # Cbus connected automatically
                 "rs232_m": "rs232_m",
                 # "interrupt_o": "uart0_interrupt",
@@ -945,9 +556,7 @@ def setup(py_params_dict):
             "is_peripheral": True,
             "parameters": {},
             "connect": {
-                "clk_en_rst_s": (
-                    "clk_en_reset" if params["use_ila"] else "clk_en_rst_s"
-                ),
+                "clk_en_rst_s": "clk_en_rst_s",
                 # Cbus connected automatically
                 "rs232_m": "rs232_invert",
                 # "interrupt_o": "uart1_interrupt",
@@ -970,9 +579,7 @@ def setup(py_params_dict):
                     "AXI_DATA_W": params["data_w"],
                 },
                 "connect": {
-                    "clk_en_rst_s": (
-                        "clk_en_reset" if params["use_ila"] else "clk_en_rst_s"
-                    ),
+                    "clk_en_rst_s": "clk_en_rst_s",
                     "axi_m": (
                         "eth_axi",
                         [
@@ -1018,179 +625,6 @@ def setup(py_params_dict):
             },
         ]
 
-    if params["use_ila"]:
-        subblocks += [
-            {
-                "core_name": "iob_ila",
-                "instance_name": "ILA0",
-                "instance_description": "Tester Integrated Logic Analyzer for SUT signals",
-                "is_peripheral": True,
-                "sampling_clk": "clk_i",  # Name of the internal system signal to use as the sampling clock
-                "trigger_list": [
-                    "translated_sut_axi_arvalid",
-                    "translated_sut_axi_rready",
-                    "translated_sut_axi_bready",
-                    "translated_sut_axi_bready && translated_sut_axi_bvalid",
-                ],  # List of signals to use as triggers
-                "probe_list": [  # List of signals to probe
-                    ("SUT0.cpu.CPU.execute_PC", 32),
-                    ("translated_sut_axi_araddr", 30),
-                    ("translated_sut_axi_arvalid", 1),
-                    ("translated_sut_axi_arready", 1),
-                    ("translated_sut_axi_rvalid", 1),
-                    ("translated_sut_axi_rready", 1),
-                    ("translated_sut_axi_bvalid", 1),
-                    ("translated_sut_axi_bready", 1),
-                ],
-                "clk_counter": "1",
-                "clk_width": "64",
-                "parameters": {
-                    "BUFFER_W": "ILA0_BUFFER_W",
-                    "SIGNAL_W": "ILA0_SIGNAL_W",
-                    "TRIGGER_W": "ILA0_TRIGGER_W",
-                    "MONITOR": "0",
-                    "MONITOR_STATE_W": "3",
-                },
-                "connect": {
-                    "clk_en_rst_s": "clk_en_rst_s",
-                    # Cbus connected automatically
-                    "ila_i": "ILA0_ila",
-                    "dma_io": "ILA0_dma",
-                },
-            },
-            {
-                "core_name": "iob_watchdog",
-                "instance_name": "WATCHDOG0",
-                "instance_description": "Tester Integrated Logic Analyzer for SUT signals",
-                "is_peripheral": True,
-                "connect": {
-                    "clk_en_rst_s": "clk_en_rst_s",
-                    # Cbus connected automatically
-                    "active_o": "watchdog0_active",
-                    "interrupt_o": "reset",
-                },
-            },
-        ]
-
-        subblocks += [
-            {
-                "core_name": "iob_axi2iob",
-                "instance_name": "periphs_axi2iob",
-                "instance_description": "Convert AXI to AXI lite for CLINT",
-                "parameters": {
-                    "AXI_ID_WIDTH": "AXI_ID_W",
-                    "AXI_LEN_WIDTH": "AXI_LEN_W",
-                    "ADDR_WIDTH": params["addr_w"] - 2 - 2,
-                    "DATA_WIDTH": "AXI_DATA_W",
-                },
-                "connect": {
-                    "clk_en_rst_s": "clk_en_reset",
-                    "axi_s": (
-                        "axi_periphs_cbus",
-                        [
-                            "periphs_axi_arlock[0]",
-                            "periphs_axi_awlock[0]",
-                        ],
-                    ),
-                    "iob_m": "iob_periphs_cbus",
-                },
-            },
-            {
-                "core_name": "iob_split",
-                "name": params["name"] + "_pbus_split",
-                "instance_name": "iob_pbus_split",
-                "instance_description": "Split between peripherals",
-                "connect": {
-                    "clk_en_rst_s": "clk_en_reset",
-                    "reset_i": "split_reset",
-                    "input_s": "iob_periphs_cbus",
-                    # Peripherals cbus connections added automatically
-                },
-                "num_outputs": 0,  # Num outputs configured automatically
-                "addr_w": params["addr_w"] - 2 - 2,
-            },
-        ]
-
-    if params["stream"]:
-        subblocks += [
-            {
-                "core_name": "versat_ai_axistream_in",
-                "instance_name": "AXISTREAMIN0",
-                "instance_description": "SUT AXI input stream interface",
-                "is_peripheral": True,
-                "parameters": {
-                    "FIFO_ADDR_W": "10",
-                    # "TDATA_W": "32",
-                },
-                "connect": {
-                    "clk_en_rst_s": "clk_en_rst_s",
-                    "interrupt_o": "axistreamin_interrupt",
-                    "overflow_o": "overflow",
-                    "axistream_io": "axistream_in",
-                    "sys_axis_io": "sys_axis_in",
-                },
-            },
-            {
-                "core_name": "versat_ai_axistream_out",
-                "instance_name": "AXISTREAMOUT0",
-                "instance_description": "SUT AXI output stream interface",
-                "is_peripheral": True,
-                "parameters": {
-                    "FIFO_ADDR_W": "9",
-                },
-                "connect": {
-                    "clk_en_rst_s": "clk_en_rst_s",
-                    "interrupt_o": "axistreamout_interrupt",
-                    "trigger_interrupt_o": "underflow",
-                    "trigger_i": "pulse",
-                    "axistream_io": "axistream_out",
-                    "sys_axis_io": "sys_axis_out",
-                },
-            },
-            {
-                "core_name": "versat_ai_dma",
-                "instance_name": "DMA0",
-                "instance_description": "DMA interface",
-                "is_peripheral": True,
-                "parameters": {
-                    "AXI_ID_W": "AXI_ID_W",
-                    "AXI_LEN_W": "AXI_LEN_W",
-                    "AXI_ADDR_W": params["addr_w"],
-                    "AXI_DATA_W": params["data_w"],
-                },
-                "connect": {
-                    "clk_en_rst_s": "clk_en_rst_s",
-                    "rst_i": "rst",
-                    "axi_m": "dma_axi",
-                    "dma_input_io": "sys_axis_in",
-                    "dma_output_io": "sys_axis_out",
-                },
-            },
-            {
-                "core_name": "iob_nco",
-                "instance_name": "NCO0",
-                "instance_description": "NCO peripheral",
-                "is_peripheral": True,
-                "connect": {
-                    "clk_en_rst_s": "clk_en_rst_s",
-                    "clk_gen_io": "nc0_clk_gen",
-                },
-            },
-            {
-                "core_name": "iob_edge_detect",
-                "instance_name": "iob_edge_detect_inst",
-                "parameters": {
-                    "OUT_TYPE": '"pulse"',
-                },
-                "connect": {
-                    "clk_en_rst_s": "edge_detect_clk_en_rst",
-                    "rst_i": "rst",
-                    "bit_i": "nco0_clk_out",
-                    "detected_o": "mcke",
-                },
-            },
-        ]
-
     ### Superblocks ###
 
     superblocks = [
@@ -1226,42 +660,8 @@ def setup(py_params_dict):
 assign reset_addr = 32'h80000000;
 """
 
-    if params["stream"] == 0:
-        snippets += """
+    snippets += """
 assign interrupts = 32'b0;
-"""
-
-    if params["stream"] == 1:
-        snippets += """
-assign interrupts = {{30{1'b0}}, decoder_interrupt, 1'b0};
-
-assign axis_in_clk_i = mclk_i;
-assign axis_in_cke_i = mcke;
-assign axis_in_arst_i = arst_mclk_i;
-
-assign axis_out_clk_i = mclk_i;
-assign axis_out_cke_i = mcke;
-assign axis_out_arst_i = arst_mclk_i;
-"""
-
-    if params["use_ila"]:
-        snippets += """
-// Auto-generated connections for ILA0
-assign ILA0_sampling_clk = clk_i;
-function [31:0] ILA0_trunc_32(input [31:0] val);
-    ILA0_trunc_32 = (32'h0 | val);
-endfunction
-function [0:0] ILA0_trunc_1(input [0:0] val);
-    ILA0_trunc_1 = (1'h0 | val);
-endfunction
-function [29:0] ILA0_trunc_30(input [29:0] val);
-    ILA0_trunc_30 = (30'h0 | val);
-endfunction
-
-assign ILA0_signal = {ILA0_trunc_1(translated_sut_axi_bready),ILA0_trunc_1(translated_sut_axi_bvalid),ILA0_trunc_1(translated_sut_axi_rready),ILA0_trunc_1(translated_sut_axi_rvalid),ILA0_trunc_1(translated_sut_axi_arready),ILA0_trunc_1(translated_sut_axi_arvalid),ILA0_trunc_30(translated_sut_axi_araddr),ILA0_trunc_32(SUT0.cpu.CPU.execute_PC)};
-assign ILA0_trigger = {translated_sut_axi_bready && translated_sut_axi_bvalid,translated_sut_axi_bready,translated_sut_axi_rready,translated_sut_axi_arvalid};
-
-assign reset_combo = reset | arst_i;
 """
 
     # Py2hwsw dictionary describing current core

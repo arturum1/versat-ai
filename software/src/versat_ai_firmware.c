@@ -328,8 +328,6 @@ int main() {
 #endif
 #endif
 
-
-
 #include "iob_bsp.h"
 #include "iob_printf.h"
 #include "versat_ai_conf.h"
@@ -356,7 +354,8 @@ void init_peripherals() {
 int main() {
   init_peripherals();
 
-  while (iob_regfileif_inverted_csrs_get_start() == 0);
+  while (iob_regfileif_inverted_csrs_get_start() == 0)
+    ;
 
   printf("INSIDE THE SUT 123\n");
 

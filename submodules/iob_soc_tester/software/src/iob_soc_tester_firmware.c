@@ -65,11 +65,6 @@ int main() {
   // Switch back to UART0
   versat_ai_uart_csrs_init_baseaddr(UART0_BASE);
 
-  // Send data to console
-  // uint32_t decoded_size = iob_regfileif_csrs_get_de_size();
-  // uart_sendfile("../src/sample_rec.pcm", decoded_size,
-  //              (char *)config.decoded_buffer);
-
   // End UART0 connection
   uart_finish();
 

@@ -43,12 +43,8 @@ VERSAT_AI_FW_SRC=src/versat_ai_firmware.S
 VERSAT_AI_FW_SRC+=src/versat_ai_firmware.c
 VERSAT_AI_FW_SRC+=src/iob_printf.c
 
-#VERSAT_AI_MEM2MEM_SRC=src/versat_ai_mem2mem.c
-#VERSAT_AI_STREAM_SRC=src/versat_ai_stream.c
-#VERSAT_AI_FW_PLUS_SRC += $(AACDEC_SRC_EXTRA) $(ARITHCODING_SRC) $(FDK_SRC_EXTRA) $(SACDEC_SRC) $(SBRDEC_SRC)
-
 # PERIPHERAL SOURCES
-PERIPHERALS+=iob_regfileif_inverted#FIXME Hack
+PERIPHERALS+=iob_regfileif_inverted #FIXME Hack
 DRIVERS=$(addprefix src/,$(addsuffix .c,$(PERIPHERALS)))
 DRIVERS_CSR=$(addprefix src/,$(addsuffix _csrs.c,$(PERIPHERALS)))
 # Only add driver files if they exist
@@ -63,17 +59,10 @@ else
 WRAPPER_CONFS_PREFIX=iob_uut
 endif
 
-# Function conditionally appends additional source files to a variable
-# Usage: $(call ADD_SRCS,<target_value>,<flag_value>,<variable_name>,<base_sources>,<additional_sources>)
-# ADD_SRCS = $(eval $(3) := $(if $(filter $(1),$(2)),$(4) $(5),$(4)))
-
 iob_bsp:
 	sed 's/$(WRAPPER_CONFS_PREFIX)/IOB_BSP/Ig' src/$(WRAPPER_CONFS_PREFIX)_conf.h > src/iob_bsp.h
 
 versat_ai_firmware: iob_bsp
-	#$(call ADD_SRCS,0,$(call GET_VERSAT_AI_CONF_MACRO,STREAM,../hardware/src/versat_ai_conf.vh),VERSAT_AI_FW_SRC,$(VERSAT_AI_FW_SRC),$(VERSAT_AI_MEM2MEM_SRC))
-	#$(call ADD_SRCS,1,$(call GET_VERSAT_AI_CONF_MACRO,STREAM,../hardware/src/versat_ai_conf.vh),VERSAT_AI_FW_SRC,$(VERSAT_AI_FW_SRC),$(VERSAT_AI_STREAM_SRC))
-	#$(call ADD_SRCS,1,$(call GET_VERSAT_AI_CONF_MACRO,AACPLUS,../hardware/src/versat_ai_conf.vh),VERSAT_AI_FW_SRC,$(VERSAT_AI_FW_SRC),$(VERSAT_AI_FW_PLUS_SRC))
 	make $@.elf INCLUDES="$(VERSAT_AI_INCLUDES)" CFLAGS="$(VERSAT_AI_CFLAGS)" LFLAGS="$(VERSAT_AI_LFLAGS) -Wl,-Map,$@.map" SRC="${VERSAT_AI_FW_SRC}" TEMPLATE_LDS="$(TEMPLATE_LDS)";
 
 .PHONY: build_versat_ai_software iob_bsp versat_ai_firmware

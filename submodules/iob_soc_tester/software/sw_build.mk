@@ -46,11 +46,6 @@ IOB_SOC_TESTER_FW_SRC=src/iob_soc_tester_firmware.S
 IOB_SOC_TESTER_FW_SRC+=src/iob_soc_tester_firmware.c
 IOB_SOC_TESTER_FW_SRC+=src/iob_printf.c
 
-#IOB_SOC_TESTER_MEM2MEM_SRC=src/iob_soc_tester_mem2mem.c
-#IOB_SOC_TESTER_STREAM_SRC=src/iob_soc_tester_stream.c
-
-#IOB_SOC_TESTER_ILA_SRC+=src/iob_ila_static_generate.c
-
 # PERIPHERAL SOURCES
 PERIPHERALS+=versat_ai iob_regfileif#FIXME Hack
 DRIVERS=$(addprefix src/,$(addsuffix .c,$(PERIPHERALS)))
@@ -65,13 +60,6 @@ IOB_SOC_TESTER_BOOT_SRC+=src/iob_soc_tester_boot.c
 IOB_SOC_TESTER_BOOT_SRC+=src/iob_printf.c
 IOB_SOC_TESTER_BOOT_SRC+=src/versat_ai_uart.c
 IOB_SOC_TESTER_BOOT_SRC+=src/versat_ai_uart_csrs.c
-# IOB_SOC_TESTER_BOOT_SRC+=src/iob_eth.c
-# IOB_SOC_TESTER_BOOT_SRC+=src/iob_eth_csrs_emb.c
-
-#IOB_SOC_TESTER_BOOT_ILA_SRC+=src/iob_ila.c
-#IOB_SOC_TESTER_BOOT_ILA_SRC+=src/iob_ila_csrs.c
-#IOB_SOC_TESTER_BOOT_ILA_SRC+=src/iob_watchdog.c
-#IOB_SOC_TESTER_BOOT_ILA_SRC+=src/iob_watchdog_csrs.c
 
 # PREBOOT SOURCES
 IOB_SOC_TESTER_PREBOOT_SRC=src/iob_soc_tester_preboot.S
@@ -86,22 +74,14 @@ T_WRAPPER_CONFS_PREFIX=iob_uut
 WRAPPER_CONFS_PREFIX=iob_uut
 endif
 
-# Function conditionally appends additional source files to a variable
-# Usage: $(call ADD_SRCS,<target_value>,<flag_value>,<variable_name>,<base_sources>,<additional_sources>)
-# ADD_SRCS = $(eval $(3) := $(if $(filter $(1),$(2)),$(4) $(5),$(4)))
-
 iob_bsp:
 	sed 's/$(T_WRAPPER_CONFS_PREFIX)/IOB_BSP/Ig' src/$(T_WRAPPER_CONFS_PREFIX)_conf.h > src/iob_bsp.h
 	sed 's/$(T_WRAPPER_CONFS_PREFIX)/IOB_BSP/Ig' src/$(T_WRAPPER_CONFS_PREFIX)_conf.h > ../../software/src/$(WRAPPER_CONFS_PREFIX)_conf.h
 
 iob_soc_tester_firmware: iob_bsp
-	#$(call ADD_SRCS,0,$(call GET_IOB_SOC_TESTER_CONF_MACRO,STREAM,../hardware/src/iob_soc_tester_conf.vh),IOB_SOC_TESTER_FW_SRC,$(IOB_SOC_TESTER_FW_SRC),$(IOB_SOC_TESTER_MEM2MEM_SRC))
-	#$(call ADD_SRCS,1,$(call GET_IOB_SOC_TESTER_CONF_MACRO,STREAM,../hardware/src/iob_soc_tester_conf.vh),IOB_SOC_TESTER_FW_SRC,$(IOB_SOC_TESTER_FW_SRC),$(IOB_SOC_TESTER_STREAM_SRC))
-	#$(call ADD_SRCS,1,$(call GET_IOB_SOC_TESTER_CONF_MACRO,ILA,../hardware/src/iob_soc_tester_conf.vh),IOB_SOC_TESTER_FW_SRC,$(IOB_SOC_TESTER_FW_SRC),$(IOB_SOC_TESTER_ILA_SRC))
 	make $@.elf INCLUDES="$(IOB_SOC_TESTER_INCLUDES)" CFLAGS="$(IOB_SOC_TESTER_CFLAGS)" LFLAGS="$(IOB_SOC_TESTER_LFLAGS) -Wl,-Map,$@.map" SRC="${IOB_SOC_TESTER_FW_SRC}" TEMPLATE_LDS="$(TEMPLATE_LDS)";
 
 iob_soc_tester_boot: iob_bsp
-	#$(call ADD_SRCS,1,$(call GET_IOB_SOC_TESTER_CONF_MACRO,ILA,../hardware/src/iob_soc_tester_conf.vh),IOB_SOC_TESTER_BOOT_SRC,$(IOB_SOC_TESTER_BOOT_SRC),$(IOB_SOC_TESTER_BOOT_ILA_SRC))
 	make $@.elf INCLUDES="$(IOB_SOC_TESTER_INCLUDES)" CFLAGS="$(IOB_SOC_TESTER_CFLAGS)" LFLAGS="$(IOB_SOC_TESTER_LFLAGS) -Wl,-Map,$@.map" SRC="${IOB_SOC_TESTER_BOOT_SRC}" TEMPLATE_LDS="$(TEMPLATE_LDS)";
 
 iob_soc_tester_preboot:
