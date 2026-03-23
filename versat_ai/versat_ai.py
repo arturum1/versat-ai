@@ -25,7 +25,7 @@ def setup(py_params_dict: dict):
         # If should use external memory (usually DDR)
         "use_extmem": True,
         # If should include a bootrom
-        "use_bootrom": True,
+        "use_bootrom": False,
         # If should include peripherals
         "use_peripherals": True,
         # If should setup ethernet ports and testbenches
@@ -206,7 +206,22 @@ def setup(py_params_dict: dict):
                 "LOCK_W": "1",
             },
         },
+        {
+            "name": "reset",
+            "descr": "",
+            "signals": [
+                {"name": "reset", "width": 1},
+            ],
+        },
+        {
+            "name": "firm_addr",
+            "descr": "",
+            "signals": [
+                {"name": "firm_addr", "width": 32},
+            ],
+        },
     ]
+
     subblocks += [
         xbar,
         {
@@ -241,6 +256,52 @@ def setup(py_params_dict: dict):
             "is_peripheral": True,
             "parameters": {},
             "connect": {"axi_out_m": "versat_axi"},
+        },
+        {  # Change vexriscv to custom configuration
+            "core_name": "versat_ai_vexriscv",
+            "name": params["name"] + "_" + params["cpu"],
+            "instance_name": "cpu",
+            "instance_description": "RISC-V CPU instance",
+            "uncached_start_addr": uncached_start_addr,
+            "uncached_size": uncached_size,
+            "parameters": {
+                "AXI_ID_W": "1",
+                "AXI_ADDR_W": params["addr_w"],
+                "AXI_DATA_W": params["data_w"],
+                "AXI_LEN_W": "AXI_LEN_W",
+            },
+            "connect": {
+                "resetVector_i": "firm_addr",
+                "clk_en_rst_s": "clk_en_rst_s",
+                "rst_i": "reset",
+                "i_bus_m": (
+                    "cpu_ibus",
+                    [
+                        "cpu_i_axi_arid[0]",
+                        "cpu_i_axi_rid[0]",
+                        "cpu_i_axi_awid[0]",
+                        "cpu_i_axi_bid[0]",
+                    ],
+                ),
+                "d_bus_m": (
+                    "cpu_dbus",
+                    [
+                        "cpu_d_axi_arid[0]",
+                        "cpu_d_axi_rid[0]",
+                        "cpu_d_axi_awid[0]",
+                        "cpu_d_axi_bid[0]",
+                    ],
+                ),
+                "plic_interrupts_i": "interrupts",
+                "plic_cbus_s": (
+                    "plic_cbus",
+                    ["plic_cbus_iob_addr[22-2-1:0]"],
+                ),
+                "clint_cbus_s": (
+                    "clint_cbus",
+                    ["clint_cbus_iob_addr[16-2-1:0]"],
+                ),
+            },
         },
     ]
     superblocks = [
@@ -301,6 +362,90 @@ def setup(py_params_dict: dict):
                 },
             },
         ]
+
+    regs = [
+            {
+                "name": "start",
+                "type": "W",
+                "n_bits": 1,
+                "rst_val": 0,
+                "log2n_items": 0,
+                "autoreg": True,
+                "descr": "Start (1) or not (0).",
+            },
+            {
+                "name": "done",
+                "type": "R",
+                "n_bits": 1,
+                "rst_val": 0,
+                "log2n_items": 0,
+                "autoreg": True,
+                "descr": "Versat ai finished decoding input data (1) or not (0).",
+            },
+            {
+                "name": "rst",
+                "type": "W",
+                "n_bits": 1,
+                "rst_val": 1,
+                "log2n_items": 0,
+                "autoreg": True,
+                "output": True,
+                "descr": "Resets (1) or not (0).",
+            },
+            {
+                "name": "firm_addr",
+                "type": "W",
+                "n_bits": 32,
+                "rst_val": 0,
+                "log2n_items": 0,
+                "autoreg": True,
+                "output": True,
+                "descr": "Memory address of firmware.",
+            },
+        ]
+
+    ports += [
+        {
+            "name": "iob_csrs_cbus_s",
+            "signals": {
+                "type": "iob",
+                "ADDR_W": "4",
+                "DATA_W": params["data_w"],
+            },
+            "descr": "CPU native interface",
+        },
+    ]
+
+    subblocks += [
+        {
+            "core_name": "iob_regfileif",
+            "instance_name": "REGFILEIF0",
+            "instance_description": "The Register file interface contains registers used to configure, control and monitor the AAC decoder.",
+            "is_peripheral": True,
+            "internal_csr_if_widths": {
+                "ADDR_W": "4",
+                "DATA_W": 32,
+            },
+            "external_csr_if_widths": {
+                "ADDR_W": "4",
+                "DATA_W": 32,
+            },
+            "csrs": [
+                {
+                    "name": "regfileif",
+                    "descr": "REGFILEIF software accessible registers.",
+                    "regs": regs,
+                },
+            ],
+            "connect": {
+                "clk_en_rst_s": "clk_en_rst_s",
+                # Cbus connected automatically
+                "iob_csrs_external_cbus_s": "iob_csrs_cbus_s",
+                "rst_o": "reset",
+                "firm_addr_o": "firm_addr",
+            },
+        },
+    ]
 
     # Py2hwsw dictionary describing current core
     core_dict = {

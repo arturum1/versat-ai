@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2024 IObundle
+#
+# SPDX-License-Identifier: MIT
+
+#PATHS
+VEXRISCV_DIR ?= $(shell pwd)
+VEX_HARDWARE_DIR:=$(VEXRISCV_DIR)/hardware
+VEXRISCV_SRC_DIR:=$(VEX_HARDWARE_DIR)/src
+VEX_SUBMODULES_DIR:=$(VEXRISCV_DIR)/submodules
+
+# Rules
+.PHONY: vexriscv clean-all qemu
+
+CPU ?= VexRiscvAxi4PlicClint
+JDK_HOME := $(shell dirname $$(dirname $$(which java)))
+
+# Primary targets
+vexriscv:
+	cp $(VEX_HARDWARE_DIR)/vexriscv_core/VexRiscvAxi4PlicClint.scala $(VEX_SUBMODULES_DIR)/VexRiscv/src/main/scala/vexriscv/demo/
+	cp $(VEX_HARDWARE_DIR)/vexriscv_core/ClzPlugin.scala $(VEX_SUBMODULES_DIR)/VexRiscv/src/main/scala/vexriscv/demo/
+	cp $(VEX_HARDWARE_DIR)/vexriscv_core/Fetcher.scala $(VEX_SUBMODULES_DIR)/VexRiscv/src/main/scala/vexriscv/plugin/
+	cp $(VEX_HARDWARE_DIR)/vexriscv_core/StaticMemoryTranslatorPlugin.scala $(VEX_SUBMODULES_DIR)/VexRiscv/src/main/scala/vexriscv/plugin/
+	cd submodules/VexRiscv && \
+	sbt -java-home $(JDK_HOME) "runMain vexriscv.demo.$(CPU)" && \
+	cp $(CPU).v $(VEXRISCV_SRC_DIR)
+
+#
+# Clean
+#
+clean-vexriscv:
+	rm $(VEXRISCV_SRC_DIR)/$(CPU).v
+
+clean-all: clean-vexriscv

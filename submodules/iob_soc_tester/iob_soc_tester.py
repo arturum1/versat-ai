@@ -41,17 +41,17 @@ def setup(py_params_dict):
         "cpu": "iob_vexriscv",
     }
 
-    if False:
+    if True:
         # Don't copy files for other targets (like clean)
         if py_params_dict.get("py2hwsw_target", "") == "setup":
             dst = f"{py_params_dict['build_dir']}/tester/software/src/"
             os.makedirs(dst, exist_ok=True)
             src = f"../../../software/src/"
             for src_file in [
-                # "iob_regfileif_csrs_conf.h",
-                # "iob_regfileif_csrs.h",
-                # "iob_regfileif_csrs.c",
-                # "iob_regfileif_conf.h",
+                "iob_regfileif_csrs_conf.h",
+                "iob_regfileif_csrs.h",
+                "iob_regfileif_csrs.c",
+                "iob_regfileif_conf.h",
                 "versat_ai_conf.h",
             ]:
                 subprocess.run(
@@ -161,7 +161,7 @@ def setup(py_params_dict):
             "core_name": "versat_ai",
             "instance_name": "SUT",
             "instance_description": "System Under Test (SUT) to be verified by this tester.",
-            # "is_peripheral": True,  # Only applies if SUT has CSRs (via regfileif).
+            "is_peripheral": True,
             "parameters": {
                 "AXI_ID_W": "AXI_ID_W",
                 "AXI_LEN_W": "AXI_LEN_W",
