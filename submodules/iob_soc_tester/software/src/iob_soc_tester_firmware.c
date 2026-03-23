@@ -1,105 +1,77 @@
+/* Includes */
 #include "iob_bsp.h"
-#include "iob_printf.h"
 #include "iob_soc_tester_conf.h"
 #include "iob_soc_tester_mmap.h"
-#include "iob_timer.h"
-#include "iob_uart.h"
+#include "versat_ai_conf.h"
+
+#include "iob_printf.h"
+#include "stdlib.h"
+#include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
-// Enable debug messages.
-#define DEBUG 1
+#include "iob_regfileif_csrs.h"
+#include "versat_ai_uart.h"
 
-int main() {
-  int i;
-  uint32_t file_size = 0;
-  char c, buffer[2048];
-  char pass_string[] = "Test passed!";
-  char fail_string[] = "Test failed!";
+void init_peripherals() {
+  // init uart1 (connected to the SUT)
+  uart_init(UART1_BASE, IOB_BSP_FREQ / IOB_BSP_BAUD);
 
-  // init timer
-  timer_init(TIMER0_BASE);
-
-  // init uart
+  // init uart0
   uart_init(UART0_BASE, IOB_BSP_FREQ / IOB_BSP_BAUD);
   printf_init(&uart_putc);
 
-  // test puts
-  uart_puts("\n\n\nHello world from Tester! AKSJdAUOYHSdyawvusbdvy\n\n\n");
+  // Init SUT (connected through REGFILEIF)
+  iob_regfileif_csrs_init_baseaddr(SUT0_BASE);
+}
 
-  //
-  // Init SUT
-  //
+void relay_messages() {
+  uint8_t c;
 
-  uart_puts("[Tester]: Initializing SUT via UART...\n");
+  versat_ai_uart_csrs_init_baseaddr(UART1_BASE);
+  c = uart_getc();
+  versat_ai_uart_csrs_init_baseaddr(UART0_BASE);
+  uart_putc(c);
+}
 
-  // Init and switch to uart1 (connected to the SUT)
-  uart_init(UART1_BASE, IOB_BSP_FREQ / IOB_BSP_BAUD);
-
-  // Wait for ENQ signal from SUT
-  while ((c = uart_getc()) != ENQ)
-    if (DEBUG) {
-      iob_uart_csrs_init_baseaddr(UART0_BASE);
-      uart_putc(c);
-      iob_uart_csrs_init_baseaddr(UART1_BASE);
-    };
-
-  // Step 1
-
-  // Send ack to sut
-  uart_puts("\nTester ACK");
-
-  iob_uart_csrs_init_baseaddr(UART0_BASE);
-  uart_puts("[Tester]: Received SUT UART enquiry and sent acknowledge.\n");
-
-  //
-  // Read SUT messages
-  //
-
-  uart_puts("\n[Tester]: Reading SUT messages...\n");
-  iob_uart_csrs_init_baseaddr(UART1_BASE);
-
-  // Delay to ensure SUT is waiting for ack
-  for (unsigned int i = 0; i < 100; i++)
-    asm volatile("nop");
-  // Send second ack to SUT to continue boot
-  uart_putc(ACK);
-
-  // Step 2
-
-  i = 0;
-  // Read and store messages sent from SUT
-  while ((c = uart_getc()) != EOT) {
-    buffer[i] = c;
-    if (DEBUG) {
-      iob_uart_csrs_init_baseaddr(UART0_BASE);
-      uart_putc(c);
-      iob_uart_csrs_init_baseaddr(UART1_BASE);
-    }
-    i++;
+void test_loop() {
+  while (!iob_regfileif_csrs_get_done()) {
+    relay_messages();
   }
-  buffer[i] = EOT;
 
-  //
-  // Print (stored) SUT messages
-  //
+  // Print remaining messages
+  while (versat_ai_uart_csrs_get_rxready()) {
+    relay_messages();
+  }
+}
+
+int main() {
+  init_peripherals();
+  iob_regfileif_csrs_set_firm_addr((int)VERSAT_AI_FW_BASEADDR);
+  iob_regfileif_csrs_set_rst(0);
+  iob_regfileif_csrs_set_start(1);
+
+  test_loop();
+
+  uart_puts("\n");
+  uart_puts("[Tester]: Finished processing\n");
+
+  uart_puts("[Tester]: 123\n");
+
+  // End UART1 connection with SUT
+  versat_ai_uart_csrs_init_baseaddr(UART1_BASE);
+  uart_finish();
 
   // Switch back to UART0
-  iob_uart_csrs_init_baseaddr(UART0_BASE);
+  versat_ai_uart_csrs_init_baseaddr(UART0_BASE);
 
-  // Send messages previously stored from SUT
-  uart_puts("[Tester]: #### Messages received from SUT: ####\n\n");
-  if (!DEBUG) {
-    for (i = 0; buffer[i] != EOT; i++) {
-      uart_putc(buffer[i]);
-    }
-  }
-  uart_puts("\n[Tester]: #### End of messages received from SUT ####\n\n");
+  // Send data to console
+  // uint32_t decoded_size = iob_regfileif_csrs_get_de_size();
+  // uart_sendfile("../src/sample_rec.pcm", decoded_size,
+  //              (char *)config.decoded_buffer);
 
-  //
-  // End test
-  //
-
-  uart_sendfile("test.log", strlen(pass_string), pass_string);
-
+  // End UART0 connection
   uart_finish();
+
+  return 0;
 }

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+#if 0
+
 #include "iob_bsp.h"
 #include "iob_printf.h"
 #include "iob_timer.h"
@@ -324,3 +326,43 @@ int main() {
   return 0;
 }
 #endif
+#endif
+
+
+
+#include "iob_bsp.h"
+#include "iob_printf.h"
+#include "versat_ai_conf.h"
+#include "versat_ai_mmap.h"
+
+#include <stdint.h>
+
+#include "iob_regfileif_inverted_csrs.h"
+#include "iob_timer.h"
+#include "iob_uart.h"
+
+void init_peripherals() {
+  // init uart
+  uart_init(UART0_BASE, IOB_BSP_FREQ / IOB_BSP_BAUD);
+  printf_init(&uart_putc);
+
+  // init timer
+  timer_init(TIMER0_BASE);
+
+  // init regfileif
+  iob_regfileif_inverted_csrs_init_baseaddr(REGFILEIF0_BASE);
+}
+
+int main() {
+  init_peripherals();
+
+  while (iob_regfileif_inverted_csrs_get_start() == 0);
+
+  printf("INSIDE THE SUT 123\n");
+
+  iob_regfileif_inverted_csrs_set_done((int)1);
+
+  uart_finish();
+
+  return 0;
+}
