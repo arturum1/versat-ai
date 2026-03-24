@@ -125,6 +125,12 @@ fast-fpga:
 	make -C ../$(CORE)_V$(VERSION)/ fpga-sw-build BOARD=$(BOARD)
 	make -C ../$(CORE)_V$(VERSION)/ fpga-run BOARD=$(BOARD)
 
+fast-fpga-tester:
+	cp -r software ../versat_ai_V$(VERSION)/
+	cp -r submodules/iob_soc_tester/software ../versat_ai_V$(VERSION)/tester
+	make -C ../$(CORE)_V$(VERSION)/ fpga-sw-build BOARD=$(BOARD)
+	make -C ../$(CORE)_V$(VERSION)/ fpga-run BOARD=$(BOARD)
+
 versat-generate:
 	rm -f $(VERSAT_ACCEL)
 	$(MAKE) $(VERSAT_ACCEL)

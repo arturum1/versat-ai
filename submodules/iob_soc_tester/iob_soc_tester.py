@@ -22,7 +22,7 @@ def setup(py_params_dict):
         # If should include peripherals
         "use_peripherals": True,
         # If should setup ethernet ports and testbenches
-        "use_ethernet": True,
+        "use_ethernet": False,
         # CPU address width
         "addr_w": 32,
         # CPU data width

@@ -72,6 +72,7 @@ int main() {
 
   printf("Malloc gave pointer: %p\n", malloced);
 
+#if 0
   printf("Gonna store value in malloced ptr\n");
 
   malloced = 0x56788765;
@@ -81,6 +82,7 @@ int main() {
   uart_puts("Gonna store a value to mem\n");
 
   *memPtr = 0x56788765;
+#endif
 
   clear_cache();
 
