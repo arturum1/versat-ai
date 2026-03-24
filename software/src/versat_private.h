@@ -176,6 +176,13 @@ typedef struct {
   size_t outputSize;
 } LayerInfo;
 
+typedef enum {
+  PaddingType_NOTSET,
+  PaddingType_SAME_UPPER,
+  PaddingType_SAME_LOWER,
+  PaddingType_VALID
+} PaddingType;
+
 typedef struct {
   // Extra info to help
   int maxDims;
@@ -188,13 +195,6 @@ typedef struct {
   int dims;
   int64_t *inputDims;
 } ReluInfo;
-
-typedef enum {
-  PaddingType_NOTSET,
-  PaddingType_SAME_UPPER,
-  PaddingType_SAME_LOWER,
-  PaddingType_VALID
-} PaddingType;
 
 typedef struct {
   int dims;
@@ -299,6 +299,27 @@ typedef struct {
   int transA;
   int transB;
 } GemmInfo;
+
+typedef enum {
+  OperatorType_Add,
+  OperatorType_Relu,
+  OperatorType_MaxPool,
+  OperatorType_AveragePool,
+  OperatorType_Conv,
+  OperatorType_Reshape,
+  OperatorType_MatMul,
+  OperatorType_Softmax,
+  OperatorType_Transpose,
+  OperatorType_BatchNormalization,
+  OperatorType_Dropout,
+  OperatorType_LRN,
+  OperatorType_Gemm
+} OperatorType;
+
+typedef struct {
+  OperatorType type;
+
+} GenericInfo;
 
 // Software implementations
 void *Software_Conv(void *inputX, void *inputW, void *output, int index,

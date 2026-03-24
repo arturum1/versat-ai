@@ -22,7 +22,7 @@ def setup(py_params_dict):
         # If should include peripherals
         "use_peripherals": True,
         # If should setup ethernet ports and testbenches
-        "use_ethernet": False,
+        "use_ethernet": True,
         # CPU address width
         "addr_w": 32,
         # CPU data width
@@ -609,13 +609,15 @@ def setup(py_params_dict):
                     "LOCK_W": "1",
                 },
                 "connect": {
-                    "subordinate_s": (
-                        "sut_axi",
-                        [
-                            "{6'b0, sut_axi_araddr}",
-                            "{6'b0, sut_axi_awaddr}",
-                        ],
-                    ),
+                    "subordinate_s": "sut_axi",
+                    # VIVADO complaining about this size (34 given vs 30 expected). I think the proper thing to do was to remove this but we might have to put it back with a 2'b0 instead of a 6'b0
+                    # "subordinate_s": (
+                    #     "sut_axi",
+                    #     [
+                    #         "{6'b0, sut_axi_araddr}",
+                    #         "{6'b0, sut_axi_awaddr}",
+                    #     ],
+                    # ),
                     "manager_m": "translated_sut_axi",
                 },
                 "memory_zones": [

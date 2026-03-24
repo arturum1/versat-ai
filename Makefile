@@ -20,9 +20,9 @@ VERSION ?=$(shell cat ./versat_ai.py | grep version | cut -d '"' -f 4)
 
 BUILD_DIR ?= ../versat_ai_V$(VERSION)
 
-USE_INTMEM ?= 1
-USE_EXTMEM ?= 1
 INIT_MEM ?= 1
+USE_EXTMEM ?= 1
+USE_INTMEM ?= 0
 
 
 ifneq ($(DEBUG),)
@@ -68,6 +68,12 @@ fpga-build: test-setup
 	nix-shell --run "make -C ../$(CORE)_V$(VERSION)/ fpga-sw-build BOARD=$(BOARD)"
 	cp ./hardware/fpga/vivado/build.tcl ../$(CORE)_V$(VERSION)/hardware/fpga/vivado
 	make -C ../$(CORE)_V$(VERSION)/ fpga-build BOARD=$(BOARD)
+
+fpga-build-2: test-setup
+	nix-shell --run "make -C ../$(CORE)_V*/tester/ fpga-sw-build BOARD=$(BOARD)" && make -C ../$(CORE)_V*/tester/ fpga-build BOARD=$(BOARD)
+	
+fpga-run-2: fpga-build-2
+	make -C ../$(CORE)_V*/tester/ fpga-run BOARD=$(BOARD)
 
 # Need to be inside nix-shell for fast rules to work. Mostly used to speed up development instead of waiting for setup everytime
 fast-versat:

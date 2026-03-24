@@ -21,10 +21,6 @@
 
 #include "versat_ai.h"
 
-// HACK
-#define IOB_BSP_BAUD 3000000
-#define IOB_BSP_FREQ 100000000
-
 // Contains info for each test.
 #include "testInfo.h"
 
@@ -358,6 +354,15 @@ int main() {
     ;
 
   printf("INSIDE THE SUT 123\n");
+
+  int *malloced = (int *)malloc(sizeof(int));
+
+  printf("Malloc gave pointer: %p\n", malloced);
+
+  uart_puts("Gonna read a value from mem\n");
+  int *memPtr = (int *)0x10007000;
+
+  printf("Value is: %08x\n", *memPtr);
 
   iob_regfileif_inverted_csrs_set_done((int)1);
 

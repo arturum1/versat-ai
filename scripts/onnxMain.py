@@ -693,6 +693,8 @@ def GenerateDebug(
     for i, c in enumerate(cModel.operations):
         print(i, c.opName, c.inputDimensions)
 
+    # I want to stop generating stuff that needs to be compiled. Everything must be data.
+
     debugging = True
     with open(os.path.join(sourceOutputLocation, f"{namespace}_code.c"), "w") as f:
         f.write('#include "versat_private.h"\n')

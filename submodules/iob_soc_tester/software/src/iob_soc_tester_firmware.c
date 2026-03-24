@@ -13,6 +13,15 @@
 #include "iob_regfileif_csrs.h"
 #include "versat_ai_uart.h"
 
+void clear_cache() {
+  // Delay to ensure all data is written to memory
+  for (unsigned int i = 0; i < 10; i++)
+    asm volatile("nop");
+
+  // Flush VexRiscv CPU internal cache
+  asm volatile(".word 0x500F" ::: "memory");
+}
+
 void init_peripherals() {
   // init uart1 (connected to the SUT)
   uart_init(UART1_BASE, IOB_BSP_FREQ / IOB_BSP_BAUD);
@@ -45,8 +54,36 @@ void test_loop() {
   }
 }
 
+/*
+  Remember:
+  Tester contains an internal memory and that is where the firmware is running
+  from. 0x00000000 to 0x40000000 is internal memory. 0x40000000 to 0x80000000 is
+  external memory and that is the same view that the sut contains. Therefore
+    Tester 0x4YYYYYYY - 0x7YYYYYYY is the same as SUT 0x0YYYYYYY - 0x3YYYYYYY
+
+  In other words, if we want to pass memory to the SUT, we need to offset it by
+  0x40000000
+*/
+
 int main() {
   init_peripherals();
+
+  int *malloced = (int *)malloc(sizeof(int));
+
+  printf("Malloc gave pointer: %p\n", malloced);
+
+  printf("Gonna store value in malloced ptr\n");
+
+  malloced = 0x56788765;
+
+  int *memPtr = (int *)0x40007000;
+
+  uart_puts("Gonna store a value to mem\n");
+
+  *memPtr = 0x56788765;
+
+  clear_cache();
+
   iob_regfileif_csrs_set_firm_addr((int)VERSAT_AI_FW_BASEADDR);
   iob_regfileif_csrs_set_rst(0);
   iob_regfileif_csrs_set_start(1);
