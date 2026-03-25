@@ -85,7 +85,7 @@ void eth_init_mac(int base_address, uint64_t mac_addr, uint64_t dest_mac_addr) {
   int i, ret;
 
   // set base address
-  iob_eth_csrs_init_baseaddr(base_address);
+  IOB_ETH_INIT_BASEADDR(base_address);
 
   // dest mac address
   for (i = 0; i < IOB_ETH_MAC_ADDR_LEN; i++) {
@@ -152,18 +152,18 @@ void eth_init_mac(int base_address, uint64_t mac_addr, uint64_t dest_mac_addr) {
 void eth_reset_bd_memory() {
   // Reset 128 buffer descriptors (64 bits each)
   for (int i = 0; i < 256; i++) {
-    iob_eth_csrs_set_bd(0x00000000, i);
+    IOB_ETH_SET_BD(0x00000000, i);
   }
 }
 
 // Get payload size from given buffer descriptor
 unsigned short int eth_get_payload_size(unsigned int idx) {
-  return iob_eth_csrs_get_bd(idx << 1) >> 16;
+  return IOB_ETH_GET_BD(idx << 1) >> 16;
 }
 
 // Set payload size in given buffer descriptor
 void eth_set_payload_size(unsigned int idx, unsigned int size) {
-  iob_eth_csrs_set_bd((iob_eth_csrs_get_bd(idx << 1) & 0x0000ffff) | size << 16,
+  IOB_ETH_SET_BD((IOB_ETH_GET_BD(idx << 1) & 0x0000ffff) | size << 16,
                  idx << 1);
 }
 
@@ -432,7 +432,7 @@ unsigned int eth_send_variable_file(char *data, int size) {
 }
 
 void eth_wait_phy_rst() {
-  while (iob_eth_csrs_get_phy_rst_val())
+  while (IOB_ETH_GET_PHY_RST_VAL())
     ;
 }
 
