@@ -47,6 +47,7 @@ def setup(py_params_dict):
 
     # Don't copy files for other targets (like clean)
     if py_params_dict.get("py2hwsw_target", "") == "setup":
+        # Create symlinks of specific UUT sources in tester's software/src directory
         dst = f"{py_params_dict['build_dir']}/tester/software/src/"
         os.makedirs(dst, exist_ok=True)
         src = f"../../../software/src/"

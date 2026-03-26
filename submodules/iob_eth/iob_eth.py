@@ -43,19 +43,19 @@ def setup(py_params_dict):
         )
 
     # Copy simulation testbench utility files
-    if True:
-        dst = f"{py_params_dict['build_dir']}/hardware/simulation/src"
-        os.makedirs(dst, exist_ok=True)
-        src = f"{os.path.dirname(__file__)}/hardware/simulation/src"
-        for src_file in [
-            "iob_eth_driver_tb.v",
-            "iob_eth_driver_tb.h",
-            "iob_eth_driver_tb.cpp",
-            "iob_eth_defines.vh",
-            "iob_eth_defines_verilator.h",
-            "iob_eth_defines_tasks.vs",
-        ]:
-            shutil.copy2(os.path.join(src, src_file), dst)
+    # if True:
+    #     dst = f"{py_params_dict['build_dir']}/hardware/simulation/src"
+    #     os.makedirs(dst, exist_ok=True)
+    #     src = f"{os.path.dirname(__file__)}/hardware/simulation/src"
+    #     for src_file in [
+    #         "iob_eth_driver_tb.v",
+    #         "iob_eth_driver_tb.h",
+    #         "iob_eth_driver_tb.cpp",
+    #         "iob_eth_defines.vh",
+    #         "iob_eth_defines_verilator.h",
+    #         "iob_eth_defines_tasks.vs",
+    #     ]:
+    #         shutil.copy2(os.path.join(src, src_file), dst)
 
     shutil.copytree(
         f"{os.path.dirname(__file__)}/scripts",
@@ -864,7 +864,7 @@ def setup(py_params_dict):
                 ],
                 "connect": {
                     "clk_en_rst_s": "clk_en_rst_s",
-                    #"control_if_s": "iob_csrs_cbus_s",
+                    # "control_if_s": "iob_csrs_cbus_s",
                     # Register interfaces
                     "moder_io": "moder",
                     "int_source_io": "int_source",

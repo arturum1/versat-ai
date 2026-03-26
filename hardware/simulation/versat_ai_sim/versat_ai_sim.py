@@ -6,9 +6,28 @@
 def setup(py_params_dict):
 
     attributes_dict = {
-        "name": "versat_ai_sim",
+        "name": "iob_uut",
         "generate_hw": True,
-        "confs": [],
+        "confs": [
+            {
+                "name": "BAUD",
+                "descr": "UART baud rate",
+                "type": "D",
+                "val": "3000000",
+            },
+            {
+                "name": "FREQ",
+                "descr": "Clock frequency",
+                "type": "D",
+                "val": "100000000",
+            },
+            {
+                "name": "SIMULATION",
+                "descr": "Simulation flag",
+                "type": "D",
+                "val": "1",
+            },
+        ],
     }
     #
     # Ports

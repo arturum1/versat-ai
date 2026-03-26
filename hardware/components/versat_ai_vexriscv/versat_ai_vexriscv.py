@@ -25,18 +25,18 @@ def setup(py_params_dict):
             params[param] = py_params_dict[param]
 
     # Don't copy files for other targets (like clean)
-    if py_params_dict.get("py2hwsw_target", "") == "setup":
+    # if py_params_dict.get("py2hwsw_target", "") == "setup":
 
-        shutil.copytree(
-            f"{os.path.dirname(os.path.abspath(__file__))}/hardware/simulation",
-            f"{py_params_dict['build_dir']}/hardware/simulation",
-            dirs_exist_ok=True,
-        )
-        shutil.copytree(
-            f"{os.path.dirname(os.path.abspath(__file__))}/hardware/fpga",
-            f"{py_params_dict['build_dir']}/hardware/fpga",
-            dirs_exist_ok=True,
-        )
+    #     shutil.copytree(
+    #         f"{os.path.dirname(os.path.abspath(__file__))}/hardware/simulation",
+    #         f"{py_params_dict['build_dir']}/hardware/simulation",
+    #         dirs_exist_ok=True,
+    #     )
+    #     shutil.copytree(
+    #         f"{os.path.dirname(os.path.abspath(__file__))}/hardware/fpga",
+    #         f"{py_params_dict['build_dir']}/hardware/fpga",
+    #         dirs_exist_ok=True,
+    #     )
 
     attributes_dict = {
         "name": py_params_dict["name"],

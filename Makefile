@@ -58,6 +58,9 @@ pc-emul-run: test-setup
 sim-run: test-setup
 	nix-shell --run "make -C ../$(CORE)_V$(VERSION)/ sim-run SIMULATOR=$(SIMULATOR)"
 
+tester-sim-run: test-setup
+	nix-shell --run "make -C ../$(CORE)_V$(VERSION)/tester sim-run SIMULATOR=$(SIMULATOR)"
+
 # For some reason the vivado build.tcl is being overwritten by py2. Need to copy it before 
 fpga-run: test-setup
 	nix-shell --run "make -C ../$(CORE)_V$(VERSION)/ fpga-sw-build BOARD=$(BOARD)"
